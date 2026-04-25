@@ -1,68 +1,51 @@
-﻿use riverbraid_types::{AnchorHash, InvariantId, InvariantResult, StateLabel, StateSeal};
-use serde::{Serialize, Deserialize};
+﻿use std::fs;
+use riverbraid_types::{
+    AnchorHash, InvariantId, InvariantResult, StateLabel, 
+    CommandResult, GENESIS_ANCHOR, Node, Relation, RelationalMap
+};
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct EvalInput {
+pub struct StateInput {
     pub anchor: AnchorHash,
-    pub state_data: Vec<u8>,
+    pub state_data: String,
     pub sequence: u64,
 }
 
-pub struct Validator;
+pub fn scan_constellation(root: &str) -> RelationalMap {
+    let mut nodes = Vec::new();
+    let mut relations = Vec::new();
+    let paths = fs::read_dir(root).unwrap();
 
-impl Validator {
-    pub fn evaluate(input: EvalInput) -> (Option<StateSeal>, Vec<InvariantResult>) {
-        let mut results = Vec::new();
-        
-        // 1. CouplingInvariant: Anchor must be non-zero
-        let coupling = InvariantResult {
-            id: InvariantId::Coupling,
-            passed: input.anchor.0.iter().any(|&b| b != 0),
-            reason: None,
-        };
-        results.push(coupling);
-
-        // 2. ScaleSeparation: State data must not be empty
-        results.push(InvariantResult {
-            id: InvariantId::ScaleSeparation,
-            passed: !input.state_data.is_empty(),
-            reason: None,
-        });
-
-        // 3. ThermodynamicMeaning: Placeholder for entropy/signal check
-        results.push(InvariantResult {
-            id: InvariantId::ThermodynamicMeaning,
-            passed: true, 
-            reason: Some("Signal baseline established".to_string()),
-        });
-
-        // 4. FailClosed: Ensure system rejects malformed data
-        results.push(InvariantResult {
-            id: InvariantId::FailClosed,
-            passed: true,
-            reason: None,
-        });
-
-        // 5. StationaryFloor: Only seal if marked Stationary
-        // Currently assumes input is stationary for first pass
-        results.push(InvariantResult {
-            id: InvariantId::StationaryFloor,
-            passed: true,
-            reason: None,
-        });
-
-        let all_passed = results.iter().all(|r| r.passed);
-        
-        if all_passed {
-            let seal = StateSeal {
-                anchor: input.anchor,
-                label: StateLabel::Stationary,
-                sequence: input.sequence,
-                hash: [0u8; 32], // Placeholder for real state hash
-            };
-            (Some(seal), results)
-        } else {
-            (None, results)
+    for path in paths {
+        let entry = path.unwrap();
+        let p = entry.path();
+        if p.is_dir() {
+            let anchor_file = p.join(".anchor");
+            if anchor_file.exists() {
+                let name = p.file_name().unwrap().to_str().unwrap().to_string();
+                nodes.push(Node { id: name.clone(), label: name.clone() });
+                
+                let content = fs::read_to_string(anchor_file).unwrap_or_default();
+                // Strip whitespace and potential Byte Order Marks
+                let clean = content.trim().trim_start_matches('\u{feff}'); 
+                let weight = if clean == GENESIS_ANCHOR { 1.0 } else { 0.0 };
+                
+                relations.push(Relation {
+                    source: name,
+                    target: "Genesis".to_string(),
+                    weight,
+                });
+            }
         }
+    }
+    RelationalMap { nodes, relations }
+}
+
+pub fn verify_internal(input: StateInput) -> CommandResult {
+    let passing = input.anchor.0 == GENESIS_ANCHOR;
+    CommandResult {
+        id: "verify-001".to_string(),
+        success: passing,
+        message: if passing { "STATIONARY".to_string() } else { "DRIFT".to_string() },
+        exit_code: if passing { 0 } else { 1 },
     }
 }
