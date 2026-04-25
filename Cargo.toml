@@ -1,0 +1,15 @@
+﻿[package]
+name = "riverbraid-tsh"
+version = "0.1.0"
+edition = "2021"
+description = "Trustless State Harness logic for invariant evaluation"
+
+[dependencies]
+riverbraid-types = { path = "../riverbraid-types", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+
+[[bin]]
+name = "tsh"
+path = "src/main.rs"
