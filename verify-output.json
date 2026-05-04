@@ -1,0 +1,22 @@
+{
+  "repo": "riverbraid-tsh",
+  "ring": 2,
+  "class": "signing-tool",
+  "verification_scope": "ring2-signing-tool-anchor-and-file-surface",
+  "claim_boundary": "infrastructure-classification-only",
+  "expected_anchor": "STATIONARY_STATE_V2_20260425-092050",
+  "required_files": [
+    ".anchor",
+    "AUTHORITY.md",
+    "RING.md",
+    "package.json",
+    "verify.mjs"
+  ],
+  "status": "VERIFIED",
+  "observed_anchor": "STATIONARY_STATE_V2_20260425-092050",
+  "anchor_matches": true,
+  "structural_artifact_present": true,
+  "missing_files": [],
+  "failure_codes": [],
+  "digest": "sha256:20ff31b4e6e7fc0fe3b85cada3b89b8c6ea105253d4aa9f1abd2bc18483bafd9"
+}
