@@ -1,0 +1,1 @@
+export function verify(i){ const t = i.threshold; const s = (i.repo==="riverbraid-tsh" && i.ring===2 && i.role==="threshold-signing-helper" && t.required===2 && t.available===3 && t.scheme==="ed25519-threshold-declared"); return {pass:s, stationary:s, signal:s?"tsh:THRESHOLD_STATIONARY":"tsh:DRIFT", reason:s?"Match":"Drift"}; }

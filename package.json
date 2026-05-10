@@ -1,7 +1,8 @@
 {
-    "version":  "1.0.0",
-    "name":  "riverbraid-tsh",
-    "scripts":  {
-
-                }
+  "name": "riverbraid-tsh",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": { "verify": "node verify.mjs" },
+  "riverbraid": { "ring": 2, "role": "threshold-signing-helper", "invariant": "TSH_THRESHOLD_STATIONARY", "claim_boundary": "deterministic-infrastructure-contract-only" }
 }

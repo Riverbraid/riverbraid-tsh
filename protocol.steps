@@ -1,0 +1,1 @@
+{"schema":"riverbraid.protocol.steps","version":"1.0.0","canonical_input":{"repo":"riverbraid-tsh","ring":2,"role":"threshold-signing-helper","threshold":{"required":2,"available":3,"scheme":"ed25519-threshold-declared"}}}

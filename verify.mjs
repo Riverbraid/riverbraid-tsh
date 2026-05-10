@@ -1,30 +1,12 @@
-import fs from 'fs';
-import crypto from 'crypto';
-
-const spec = {
-  repo: "riverbraid-tsh",
-  ring: 2,
-  class: "signing-tool",
-  verification_scope: "ring2-signing-tool-anchor-and-file-surface",
-  claim_boundary: "infrastructure-classification-only",
-  expected_anchor: "STATIONARY_STATE_V2_20260425-092050",
-  required_files: [".anchor", "AUTHORITY.md", "RING.md", "package.json", "verify.mjs"]
-};
-
-const observed_anchor = fs.readFileSync('.anchor', 'utf8').trim();
-const missing = spec.required_files.filter(f => !fs.existsSync(f));
-const isVerified = (observed_anchor === spec.expected_anchor && missing.length === 0);
-
-const output = {
-  ...spec,
-  status: isVerified ? "VERIFIED" : "FILES_PRESENT_UNVERIFIED",
-  observed_anchor,
-  anchor_matches: observed_anchor === spec.expected_anchor,
-  structural_artifact_present: true,
-  missing_files: missing,
-  failure_codes: [],
-  digest: "sha256:" + crypto.createHash('sha256').update(observed_anchor).digest('hex')
-};
-
-fs.writeFileSync('verify-output.json', JSON.stringify(output, null, 2));
-console.log(JSON.stringify(output, null, 2));
+import fs from "node:fs"; import crypto from "node:crypto"; import { verify } from "./index.js";
+const repo="riverbraid-tsh", role="threshold-signing-helper", inv="TSH_THRESHOLD_STATIONARY", contract="threshold-packet-contract", sig="tsh:THRESHOLD_STATIONARY";
+const protocol = JSON.parse(fs.readFileSync("protocol.steps", "utf8"));
+const result = verify(protocol.canonical_input);
+const digest = crypto.createHash("sha256").update(JSON.stringify({repo, ring:2, role, inv, contract, input:protocol.canonical_input, result})).digest("hex");
+const req = ["package.json","index.js","verify.mjs","protocol.steps","AUTHORITY.md","RING.md"];
+const missing = req.filter(f => !fs.existsSync(f));
+const status = (missing.length === 0 && result.pass && result.stationary && result.signal === sig) ? "VERIFIED" : "FAILED";
+const out = { schema:"riverbraid.infrastructure.verify.output", version:"1.0.0", repo, ring:2, role, invariant:inv, contract_type:contract, status, canonical_signal:result.signal, canonical_reason:result.reason, digest:"sha256:"+digest, required_files:req, missing_files:missing, failure_codes: status==="VERIFIED"?[]:["INFRASTRUCTURE_CONTRACT_NOT_VERIFIED"] };
+fs.writeFileSync("verify-output.json", JSON.stringify(out, null, 2) + "\n", "utf8");
+if (status !== "VERIFIED") { console.error(repo+"_FAIL"); process.exit(1); }
+console.log(repo+"_PASS");

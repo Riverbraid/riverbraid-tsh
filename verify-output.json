@@ -1,22 +1,23 @@
 {
+  "schema": "riverbraid.infrastructure.verify.output",
+  "version": "1.0.0",
   "repo": "riverbraid-tsh",
   "ring": 2,
-  "class": "signing-tool",
-  "verification_scope": "ring2-signing-tool-anchor-and-file-surface",
-  "claim_boundary": "infrastructure-classification-only",
-  "expected_anchor": "STATIONARY_STATE_V2_20260425-092050",
-  "required_files": [
-    ".anchor",
-    "AUTHORITY.md",
-    "RING.md",
-    "package.json",
-    "verify.mjs"
-  ],
+  "role": "threshold-signing-helper",
+  "invariant": "TSH_THRESHOLD_STATIONARY",
+  "contract_type": "threshold-packet-contract",
   "status": "VERIFIED",
-  "observed_anchor": "STATIONARY_STATE_V2_20260425-092050",
-  "anchor_matches": true,
-  "structural_artifact_present": true,
+  "canonical_signal": "tsh:THRESHOLD_STATIONARY",
+  "canonical_reason": "Match",
+  "digest": "sha256:e85bcb506fa44f905b160987644036df75f59f8c8121ca800d9a7bfaca3fac4b",
+  "required_files": [
+    "package.json",
+    "index.js",
+    "verify.mjs",
+    "protocol.steps",
+    "AUTHORITY.md",
+    "RING.md"
+  ],
   "missing_files": [],
-  "failure_codes": [],
-  "digest": "sha256:20ff31b4e6e7fc0fe3b85cada3b89b8c6ea105253d4aa9f1abd2bc18483bafd9"
+  "failure_codes": []
 }
